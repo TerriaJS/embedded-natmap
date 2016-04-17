@@ -52,7 +52,7 @@
     <div id="pre-national-map">
         <h1>National Map is embedded in this page</h1>
         <p>
-            You can even show it zoomed to the relevant location, with relevant data already selected.
+            You can even show it zoomed to the relevant location, with relevant data already selected, and custom data added.
         </p>
     </div>
     <div id="national-map">
@@ -64,7 +64,9 @@
         </footer>
     </div>
     <script>
-    // This is derived from a "share" URL, converted back to JSON.
+    // Start the map at a particular location, with particular data showing,
+    // just by passing the parameters in through the URL.
+    // 'initJson' below is derived from a "share" URL, converted back to JSON.
     // You could instead directly place the share URL in the iframe's "src" attribute.
     var initJson = {
         "version": "0.0.05",
@@ -151,6 +153,38 @@
     var activeTabId = 'NowViewing';
     var iFrame = document.getElementById('embedded-national-map');
     iFrame.src = iFrame.src + '#start=' + encodeURIComponent(JSON.stringify(initJson)) + '&activeTabId=' + activeTabId;
+
+    // Add our own data to the map using an iframe message.
+    // See https://github.com/TerriaJS/terriajs/wiki/Controlling-TerriaJS-in-an-iframe-by-posting-it-messages for details.
+    window.addEventListener('message', function(e) {
+        var iframeWindow = document.getElementById('embedded-national-map').contentWindow;
+        if (e.source === iframeWindow && e.data === 'ready') {
+            // NationalMap is ready to receive messages!
+            iframeWindow.postMessage({
+                initSources: [
+                    {
+                        catalog: [
+                            {
+                                type: "group",
+                                name: "Nice Areas",
+                                isPromoted: true,
+                                isOpen: true,
+                                items: [
+                                    {
+                                        type: "csv",
+                                        name: "Nice areas",
+                                        data: "POA,Description\n3429,Sunbury\n3550,Bendigo\n3350,Ballarat",
+                                        isEnabled: true
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }, 'http://nationalmap.gov.au');
+        }
+    });
+
 
     function recursiveMarginTop(element) {
         return parseInt(getComputedStyle(element).marginTop) + (element.children.length > 0 ? recursiveMarginTop(element.children[0]) : 0);
