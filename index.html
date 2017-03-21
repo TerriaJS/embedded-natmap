@@ -69,6 +69,8 @@
     // just by passing the parameters in through the URL.
     // 'initJson' below is derived from a "share" URL, converted back to JSON.
     // You could instead directly place the share URL in the iframe's "src" attribute.
+    // Note Internet Explorer (even IE11) has a limit on URL lengths, even in iframes,
+    // so if this initJson gets too much longer, it may fail on IE.
     var initJson = {
         "version": "0.0.05",
         "initSources": [{
